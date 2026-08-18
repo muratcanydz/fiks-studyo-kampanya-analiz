@@ -389,10 +389,11 @@
     .toggle-settings:hover { border-color: rgba(255, 255, 255, 0.3); color: #fff; background: rgba(255, 255, 255, 0.08); }
 
     .settings-body {
-      display: grid; grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 12px;
+      display: none;
+      grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 12px;
       padding-top: 20px; margin-top: 18px; border-top: 1px solid var(--line);
     }
-    .settings:not(.open) .settings-body { display: none; }
+    .settings.open .settings-body { display: grid !important; }
 
     .field {
       background: #0c0d0a; border: 1px solid var(--line); border-radius: 15px; padding: 12px;
@@ -775,7 +776,7 @@
 
     <!-- Calculation Settings Panel (First Section After Hero, Closed by Default) -->
     <section class="panel settings" id="settingsPanel">
-      <div class="settings-top">
+      <div class="settings-top" onclick="handleSettingsTopClick(event)">
         <div class="settings-title">
           <div class="upload-icon" style="width:38px;height:38px;border-radius:11px">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/></svg>
@@ -784,11 +785,11 @@
         </div>
 
         <div class="settings-actions">
-          <button class="btn-refresh" id="btnRefreshAnalysis" title="Değişen ayarlarla analizi yeniden hesaplar">
+          <button class="btn-refresh" id="btnRefreshAnalysis" onclick="handleRefreshClick(event)" title="Değişen ayarlarla analizi yeniden hesaplar">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
             <span id="btnRefreshText">Analizi Yenile</span>
           </button>
-          <button class="toggle-settings" id="toggleSettings">Ayarları Aç ↓</button>
+          <button class="toggle-settings" id="toggleSettings" onclick="toggleSettingsPanel(event)">Ayarları Aç ↓</button>
         </div>
       </div>
 
@@ -824,7 +825,7 @@
         </div>
 
         <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--line);">
-          <button class="btn-refresh" id="btnRefreshAnalysisBottom" style="font-size:13px; padding:12px 20px;">
+          <button class="btn-refresh" id="btnRefreshAnalysisBottom" onclick="handleRefreshClick(event)" style="font-size:13px; padding:12px 20px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
             <span id="btnRefreshBottomText">Analizi Yenile</span>
           </button>
@@ -1563,17 +1564,25 @@
       }
     }
 
-    function toggleSettingsPanel(forceOpen){
+    function toggleSettingsPanel(e, forceOpen){
+      if (e && e.stopPropagation) e.stopPropagation();
       const p = $('#settingsPanel');
       if (!p) return;
       const isOpen = forceOpen !== undefined ? forceOpen : !p.classList.contains('open');
-      p.classList.toggle('open', isOpen);
+      if (isOpen) p.classList.add('open');
+      else p.classList.remove('open');
       const toggleBtn = $('#toggleSettings');
       if (toggleBtn) toggleBtn.textContent = isOpen ? 'Ayarları Kapat ↑' : 'Ayarları Aç ↓';
     }
 
+    function handleSettingsTopClick(e){
+      if (e && e.target && e.target.closest && e.target.closest('#btnRefreshAnalysis')) return;
+      toggleSettingsPanel(e);
+    }
+
     function handleRefreshClick(e){
-      if (e) e.stopPropagation();
+      if (e && e.stopPropagation) e.stopPropagation();
+      toggleSettingsPanel(null, true);
       markSettingsClean();
       if (state.campaignRows.length) {
         analyze();
@@ -1591,31 +1600,10 @@
     els.productFile.addEventListener('change', e => e.target.files[0] && onProduct(e.target.files[0]));
 
     $('#applyMapping').addEventListener('click', () => applyProductMap(els.barcodeSelect.value, els.priceSelect.value));
-    
-    // Toggle Settings Panel on clicking button directly
-    const toggleBtn = $('#toggleSettings');
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleSettingsPanel();
-      });
-    }
-
-    // Toggle Settings Panel on clicking anywhere on header bar
-    const settingsTop = $('.settings-top');
-    if (settingsTop) {
-      settingsTop.addEventListener('click', (e) => {
-        if (e.target.closest('#btnRefreshAnalysis')) return;
-        toggleSettingsPanel();
-      });
-    }
 
     $$('#settingsPanel input, #settingsPanel select').forEach(el => el.addEventListener('input', () => {
       markSettingsDirty();
     }));
-
-    els.btnRefresh.addEventListener('click', handleRefreshClick);
-    els.btnRefreshBottom.addEventListener('click', handleRefreshClick);
 
     $$('.filter').forEach(b => b.addEventListener('click', () => {
       $$('.filter').forEach(x => x.classList.remove('active'));
