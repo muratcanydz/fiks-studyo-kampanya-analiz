@@ -301,12 +301,72 @@
       border: 1px solid var(--line); background: rgba(17, 18, 15, 0.94);
       border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 24px;
     }
-    .settings { padding: 22px 24px; }
-    .settings-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+
+    /* 360-Degree Rotating Bright Yellow Glowing Border Animation for Settings */
+    .settings {
+      position: relative;
+      padding: 24px;
+      border: 0;
+      background: #11120f;
+      border-radius: var(--radius);
+      overflow: hidden;
+      z-index: 1;
+      box-shadow: 0 0 35px rgba(255, 212, 0, 0.22), 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    .settings::before {
+      content: "";
+      position: absolute;
+      inset: -150%;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        transparent 210deg,
+        rgba(255, 212, 0, 0.35) 250deg,
+        #ffd400 310deg,
+        #ffffff 345deg,
+        #ffd400 360deg
+      );
+      animation: spinBorder 4s linear infinite;
+      z-index: -2;
+    }
+    .settings::after {
+      content: "";
+      position: absolute;
+      inset: 2px; /* 2px bright glowing border */
+      background: linear-gradient(180deg, #131411, #0f100d);
+      border-radius: calc(var(--radius) - 2px);
+      z-index: -1;
+    }
+
+    @keyframes spinBorder {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .settings-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
     .settings-title { display: flex; align-items: center; gap: 14px; }
     .settings-title b { font-size: 15px; font-weight: 780; color: #fff; }
     .settings-title span { color: var(--muted); font-size: 13px; }
     
+    .settings-actions { display: flex; align-items: center; gap: 10px; }
+
+    .btn-refresh {
+      display: inline-flex; align-items: center; gap: 8px; border: 0;
+      background: var(--yellow); color: #080808; border-radius: 12px;
+      padding: 10px 16px; font-size: 12px; font-weight: 850;
+      box-shadow: 0 0 20px rgba(255, 212, 0, 0.28); transition: 0.25s var(--ease);
+      position: relative; overflow: hidden;
+    }
+    .btn-refresh:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255, 212, 0, 0.45); }
+    .btn-refresh.dirty {
+      animation: pulseBtn 1.5s infinite; background: #fff; color: #080808; box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+    }
+    @keyframes pulseBtn {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6); }
+      70% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+    }
+
     .toggle-settings {
       border: 1px solid var(--line2); background: rgba(255, 255, 255, 0.03); color: #c5c7bf;
       font-size: 12px; font-weight: 750; padding: 9px 14px; border-radius: 12px; transition: 0.2s;
@@ -744,7 +804,7 @@
       </div>
     </section>
 
-    <!-- Calculation Settings Panel -->
+    <!-- Calculation Settings Panel with 360 Degree Spinning Border -->
     <section class="panel settings" id="settingsPanel">
       <div class="settings-top">
         <div class="settings-title">
@@ -753,7 +813,14 @@
           </div>
           <div><b>Hesaplama Ayarları</b> <span>— Kampanya koşuluna göre eşikleri özelleştirin.</span></div>
         </div>
-        <button class="toggle-settings" id="toggleSettings">Ayarları Aç ↓</button>
+
+        <div class="settings-actions">
+          <button class="btn-refresh" id="btnRefreshAnalysis">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            <span id="btnRefreshText">Analizi Yenile</span>
+          </button>
+          <button class="toggle-settings" id="toggleSettings">Ayarları Aç ↓</button>
+        </div>
       </div>
 
       <div class="settings-body">
@@ -785,6 +852,13 @@
             <option value="variant" selected>Yalnız Riskli / Kritik satırları listele (Önerilen)</option>
             <option value="group">Riskli ürün kodunun tüm varyantlarını listele</option>
           </select>
+        </div>
+
+        <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--line);">
+          <button class="btn-refresh" id="btnRefreshAnalysisBottom">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            <span id="btnRefreshBottomText">Güncel Ayarlarla Analizi Yenile</span>
+          </button>
         </div>
       </div>
     </section>
@@ -987,7 +1061,8 @@
     const state = {
       campaignRows: [], productRows: [], productHeaders: [], productPriceMap: new Map(),
       computed: [], groups: [], filter: 'all', search: '', openGroups: new Set(), matchedBarcodes: 0,
-      campaignRawData: null, campaignWorkbook: null, campaignSheetName: null, campaignFilename: '', campaignOriginalRowCount: 0
+      campaignRawData: null, campaignWorkbook: null, campaignSheetName: null, campaignFilename: '', campaignOriginalRowCount: 0,
+      settingsDirty: false
     };
 
     const els = {
@@ -997,7 +1072,9 @@
       empty: $('#emptyState'), analysis: $('#analysis'), mapping: $('#mappingPanel'),
       barcodeSelect: $('#barcodeSelect'), priceSelect: $('#priceSelect'),
       tableBody: $('#tableBody'), noResults: $('#noResults'), toast: $('#toast'),
-      siteHeader: $('#siteHeader'), mobilePanel: $('#mobilePanel'), menuToggle: $('#menuToggle')
+      siteHeader: $('#siteHeader'), mobilePanel: $('#mobilePanel'), menuToggle: $('#menuToggle'),
+      btnRefresh: $('#btnRefreshAnalysis'), btnRefreshText: $('#btnRefreshText'),
+      btnRefreshBottom: $('#btnRefreshAnalysisBottom'), btnRefreshBottomText: $('#btnRefreshBottomText')
     };
 
     // Header Scroll & Mobile Navigation
@@ -1252,6 +1329,25 @@
 
       els.empty.style.display = 'none'; els.analysis.style.display = 'block';
       updateSummary(); updateExportPreview(); renderTable();
+
+      // Reset Dirty State
+      markSettingsClean();
+    }
+
+    function markSettingsDirty(){
+      state.settingsDirty = true;
+      els.btnRefresh.classList.add('dirty');
+      els.btnRefreshBottom.classList.add('dirty');
+      els.btnRefreshText.textContent = 'Analizi Yenile (Ayar Değişti)';
+      els.btnRefreshBottomText.textContent = 'Güncel Ayarlarla Analizi Yenile (Değişiklik Var)';
+    }
+
+    function markSettingsClean(){
+      state.settingsDirty = false;
+      els.btnRefresh.classList.remove('dirty');
+      els.btnRefreshBottom.classList.remove('dirty');
+      els.btnRefreshText.textContent = 'Analizi Yenile';
+      els.btnRefreshBottomText.textContent = 'Güncel Ayarlarla Analizi Yenile';
     }
 
     function updateSummary(){
@@ -1452,6 +1548,16 @@
       }
     }
 
+    function handleRefreshClick(){
+      if (state.campaignRows.length) {
+        analyze();
+        showToast('Analiz güncel hesaplama ayarlarıyla yenilendi.');
+      } else {
+        updateExportPreview();
+        showToast('Ayarlar kaydedildi. Kampanya Excel\'ini yüklediğinizde bu değerler kullanılacaktır.');
+      }
+    }
+
     // Event Listeners
     setupDropZones();
 
@@ -1467,8 +1573,11 @@
     });
 
     $$('#settingsPanel input, #settingsPanel select').forEach(el => el.addEventListener('input', () => {
-      if (state.campaignRows.length) analyze(); else updateExportPreview();
+      markSettingsDirty();
     }));
+
+    els.btnRefresh.addEventListener('click', handleRefreshClick);
+    els.btnRefreshBottom.addEventListener('click', handleRefreshClick);
 
     $$('.filter').forEach(b => b.addEventListener('click', () => {
       $$('.filter').forEach(x => x.classList.remove('active'));
