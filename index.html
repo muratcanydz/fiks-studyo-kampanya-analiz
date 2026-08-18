@@ -364,13 +364,18 @@
       animation: shimmer 3s ease-in-out infinite;
     }
     .btn-refresh:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(255, 212, 0, 0.55); }
+    
+    /* Glowing Fiks Yellow Warning Animation when inputs change */
     .btn-refresh.dirty {
-      animation: pulseBtn 1.4s infinite; background: #ffffff; color: #080808; box-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
+      animation: pulseYellow 1.4s infinite;
+      background: linear-gradient(135deg, #ffe56b, #ffd400);
+      color: #080808;
+      box-shadow: 0 0 32px rgba(255, 212, 0, 0.7);
     }
-    @keyframes pulseBtn {
-      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
-      70% { transform: scale(1.04); box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
-      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+    @keyframes pulseYellow {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 212, 0, 0.7); }
+      70% { transform: scale(1.04); box-shadow: 0 0 0 12px rgba(255, 212, 0, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 212, 0, 0); }
     }
 
     .toggle-settings {
@@ -863,7 +868,7 @@
         <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--line);">
           <button class="btn-refresh" id="btnRefreshAnalysisBottom" style="font-size:13px; padding:12px 20px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-            <span id="btnRefreshBottomText">🔄 Analizi Yenile</span>
+            <span id="btnRefreshBottomText">Analizi Yenile</span>
           </button>
         </div>
       </div>
@@ -1336,7 +1341,7 @@
       els.empty.style.display = 'none'; els.analysis.style.display = 'block';
       updateSummary(); updateExportPreview(); renderTable();
 
-      // Reset Dirty State
+      // Reset Dirty State upon analysis completion
       markSettingsClean();
     }
 
@@ -1344,8 +1349,8 @@
       state.settingsDirty = true;
       els.btnRefresh.classList.add('dirty');
       els.btnRefreshBottom.classList.add('dirty');
-      els.btnRefreshText.textContent = 'Analizi Yenile (Ayar Değişti)';
-      els.btnRefreshBottomText.textContent = '🔄 Analizi Yenile (Değişiklik Var)';
+      els.btnRefreshText.textContent = 'Analizi Yenile (Değişiklik Var)';
+      els.btnRefreshBottomText.textContent = 'Analizi Yenile (Değişiklik Var)';
     }
 
     function markSettingsClean(){
@@ -1353,7 +1358,7 @@
       els.btnRefresh.classList.remove('dirty');
       els.btnRefreshBottom.classList.remove('dirty');
       els.btnRefreshText.textContent = 'Analizi Yenile';
-      els.btnRefreshBottomText.textContent = '🔄 Analizi Yenile';
+      els.btnRefreshBottomText.textContent = 'Analizi Yenile';
     }
 
     function updateSummary(){
@@ -1555,12 +1560,13 @@
     }
 
     function handleRefreshClick(){
+      markSettingsClean();
       if (state.campaignRows.length) {
         analyze();
         showToast('Analiz güncel hesaplama ayarlarıyla yenilendi.');
       } else {
         updateExportPreview();
-        showToast('Ayarlar kaydedildi. Kampanya Excel\'ini yüklediğinizde bu değerler kullanılacaktır.');
+        showToast('Hesaplama ayarları güncellendi ve kaydedildi.');
       }
     }
 
