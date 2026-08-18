@@ -302,39 +302,40 @@
       border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 24px;
     }
 
-    /* 360-Degree Rotating Bright Yellow Glowing Border Animation for Settings */
+    /* 360-Degree Rotating Glowing Bright Yellow Border Animation for Settings */
     .settings {
       position: relative;
-      padding: 24px;
+      padding: 26px 28px;
       border: 0;
       background: #11120f;
       border-radius: var(--radius);
       overflow: hidden;
       z-index: 1;
-      box-shadow: 0 0 35px rgba(255, 212, 0, 0.22), 0 20px 60px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 45px rgba(255, 212, 0, 0.28), 0 20px 60px rgba(0, 0, 0, 0.6);
+      margin-bottom: 28px;
     }
     .settings::before {
       content: "";
       position: absolute;
-      inset: -150%;
+      inset: -160%;
       background: conic-gradient(
         from 0deg,
         transparent 0deg,
-        transparent 210deg,
-        rgba(255, 212, 0, 0.35) 250deg,
-        #ffd400 310deg,
-        #ffffff 345deg,
+        transparent 160deg,
+        rgba(255, 212, 0, 0.45) 200deg,
+        #ffd400 270deg,
+        #ffffff 330deg,
         #ffd400 360deg
       );
-      animation: spinBorder 4s linear infinite;
+      animation: spinBorder 3.2s linear infinite;
       z-index: -2;
     }
     .settings::after {
       content: "";
       position: absolute;
-      inset: 2px; /* 2px bright glowing border */
+      inset: 3px; /* 3px thick glowing bright yellow border line */
       background: linear-gradient(180deg, #131411, #0f100d);
-      border-radius: calc(var(--radius) - 2px);
+      border-radius: calc(var(--radius) - 3px);
       z-index: -1;
     }
 
@@ -345,39 +346,44 @@
 
     .settings-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
     .settings-title { display: flex; align-items: center; gap: 14px; }
-    .settings-title b { font-size: 15px; font-weight: 780; color: #fff; }
+    .settings-title b { font-size: 16px; font-weight: 800; color: #fff; }
     .settings-title span { color: var(--muted); font-size: 13px; }
     
-    .settings-actions { display: flex; align-items: center; gap: 10px; }
+    .settings-actions { display: flex; align-items: center; gap: 12px; }
 
     .btn-refresh {
-      display: inline-flex; align-items: center; gap: 8px; border: 0;
+      display: inline-flex; align-items: center; gap: 9px; border: 0;
       background: var(--yellow); color: #080808; border-radius: 12px;
-      padding: 10px 16px; font-size: 12px; font-weight: 850;
-      box-shadow: 0 0 20px rgba(255, 212, 0, 0.28); transition: 0.25s var(--ease);
-      position: relative; overflow: hidden;
+      padding: 12px 18px; font-size: 13px; font-weight: 900;
+      box-shadow: 0 0 25px rgba(255, 212, 0, 0.35); transition: 0.25s var(--ease);
+      position: relative; overflow: hidden; cursor: pointer;
     }
-    .btn-refresh:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255, 212, 0, 0.45); }
+    .btn-refresh::before {
+      content: ""; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    .btn-refresh:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(255, 212, 0, 0.55); }
     .btn-refresh.dirty {
-      animation: pulseBtn 1.5s infinite; background: #fff; color: #080808; box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+      animation: pulseBtn 1.4s infinite; background: #ffffff; color: #080808; box-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
     }
     @keyframes pulseBtn {
-      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6); }
-      70% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+      70% { transform: scale(1.04); box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
       100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
     }
 
     .toggle-settings {
-      border: 1px solid var(--line2); background: rgba(255, 255, 255, 0.03); color: #c5c7bf;
-      font-size: 12px; font-weight: 750; padding: 9px 14px; border-radius: 12px; transition: 0.2s;
+      border: 1px solid var(--line2); background: rgba(255, 255, 255, 0.04); color: #d0d2ca;
+      font-size: 12px; font-weight: 750; padding: 11px 16px; border-radius: 12px; transition: 0.2s;
     }
-    .toggle-settings:hover { border-color: rgba(255, 255, 255, 0.25); color: #fff; }
+    .toggle-settings:hover { border-color: rgba(255, 255, 255, 0.3); color: #fff; background: rgba(255, 255, 255, 0.08); }
 
     .settings-body {
-      display: none; grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 12px;
+      display: grid; grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 12px;
       padding-top: 20px; margin-top: 18px; border-top: 1px solid var(--line);
     }
-    .settings.open .settings-body { display: grid; }
+    .settings:not(.open) .settings-body { display: none; }
 
     .field {
       background: #0c0d0a; border: 1px solid var(--line); border-radius: 15px; padding: 12px;
@@ -804,8 +810,8 @@
       </div>
     </section>
 
-    <!-- Calculation Settings Panel with 360 Degree Spinning Border -->
-    <section class="panel settings" id="settingsPanel">
+    <!-- Calculation Settings Panel with 360 Degree Spinning Bright Yellow Border (Open by Default) -->
+    <section class="panel settings open" id="settingsPanel">
       <div class="settings-top">
         <div class="settings-title">
           <div class="upload-icon" style="width:38px;height:38px;border-radius:11px">
@@ -815,11 +821,11 @@
         </div>
 
         <div class="settings-actions">
-          <button class="btn-refresh" id="btnRefreshAnalysis">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          <button class="btn-refresh" id="btnRefreshAnalysis" title="Değişen ayarlarla analizi yeniden hesaplar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
             <span id="btnRefreshText">Analizi Yenile</span>
           </button>
-          <button class="toggle-settings" id="toggleSettings">Ayarları Aç ↓</button>
+          <button class="toggle-settings" id="toggleSettings">Ayarları Kapat ↑</button>
         </div>
       </div>
 
@@ -854,10 +860,10 @@
           </select>
         </div>
 
-        <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--line);">
-          <button class="btn-refresh" id="btnRefreshAnalysisBottom">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-            <span id="btnRefreshBottomText">Güncel Ayarlarla Analizi Yenile</span>
+        <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--line);">
+          <button class="btn-refresh" id="btnRefreshAnalysisBottom" style="font-size:13px; padding:12px 20px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            <span id="btnRefreshBottomText">🔄 Analizi Yenile</span>
           </button>
         </div>
       </div>
@@ -1339,7 +1345,7 @@
       els.btnRefresh.classList.add('dirty');
       els.btnRefreshBottom.classList.add('dirty');
       els.btnRefreshText.textContent = 'Analizi Yenile (Ayar Değişti)';
-      els.btnRefreshBottomText.textContent = 'Güncel Ayarlarla Analizi Yenile (Değişiklik Var)';
+      els.btnRefreshBottomText.textContent = '🔄 Analizi Yenile (Değişiklik Var)';
     }
 
     function markSettingsClean(){
@@ -1347,7 +1353,7 @@
       els.btnRefresh.classList.remove('dirty');
       els.btnRefreshBottom.classList.remove('dirty');
       els.btnRefreshText.textContent = 'Analizi Yenile';
-      els.btnRefreshBottomText.textContent = 'Güncel Ayarlarla Analizi Yenile';
+      els.btnRefreshBottomText.textContent = '🔄 Analizi Yenile';
     }
 
     function updateSummary(){
