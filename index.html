@@ -346,20 +346,20 @@
 
     .settings-top {
       display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-      cursor: pointer; user-select: none;
+      cursor: pointer; user-select: none; position: relative; z-index: 10;
     }
     .settings-title { display: flex; align-items: center; gap: 14px; }
     .settings-title b { font-size: 16px; font-weight: 800; color: #fff; }
     .settings-title span { color: var(--muted); font-size: 13px; }
     
-    .settings-actions { display: flex; align-items: center; gap: 12px; }
+    .settings-actions { display: flex; align-items: center; gap: 12px; position: relative; z-index: 12; }
 
     .btn-refresh {
       display: inline-flex; align-items: center; gap: 9px; border: 0;
       background: var(--yellow); color: #080808; border-radius: 12px;
       padding: 12px 18px; font-size: 13px; font-weight: 900;
       box-shadow: 0 0 25px rgba(255, 212, 0, 0.35); transition: 0.25s var(--ease);
-      position: relative; overflow: hidden; cursor: pointer;
+      position: relative; overflow: hidden; cursor: pointer; z-index: 15;
     }
     .btn-refresh::before {
       content: ""; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
@@ -384,6 +384,7 @@
     .toggle-settings {
       border: 1px solid var(--line2); background: rgba(255, 255, 255, 0.04); color: #d0d2ca;
       font-size: 12px; font-weight: 750; padding: 11px 16px; border-radius: 12px; transition: 0.2s;
+      cursor: pointer; position: relative; z-index: 15;
     }
     .toggle-settings:hover { border-color: rgba(255, 255, 255, 0.3); color: #fff; background: rgba(255, 255, 255, 0.08); }
 
@@ -1562,7 +1563,17 @@
       }
     }
 
-    function handleRefreshClick(){
+    function toggleSettingsPanel(forceOpen){
+      const p = $('#settingsPanel');
+      if (!p) return;
+      const isOpen = forceOpen !== undefined ? forceOpen : !p.classList.contains('open');
+      p.classList.toggle('open', isOpen);
+      const toggleBtn = $('#toggleSettings');
+      if (toggleBtn) toggleBtn.textContent = isOpen ? 'Ayarları Kapat ↑' : 'Ayarları Aç ↓';
+    }
+
+    function handleRefreshClick(e){
+      if (e) e.stopPropagation();
       markSettingsClean();
       if (state.campaignRows.length) {
         analyze();
@@ -1573,12 +1584,6 @@
       }
     }
 
-    function toggleSettingsPanel(){
-      const p = $('#settingsPanel');
-      const open = p.classList.toggle('open');
-      $('#toggleSettings').textContent = open ? 'Ayarları Kapat ↑' : 'Ayarları Aç ↓';
-    }
-
     // Event Listeners
     setupDropZones();
 
@@ -1587,11 +1592,23 @@
 
     $('#applyMapping').addEventListener('click', () => applyProductMap(els.barcodeSelect.value, els.priceSelect.value));
     
-    // Toggle Settings Panel on clicking header bar or button
-    $('.settings-top').addEventListener('click', (e) => {
-      if (e.target.closest('#btnRefreshAnalysis')) return;
-      toggleSettingsPanel();
-    });
+    // Toggle Settings Panel on clicking button directly
+    const toggleBtn = $('#toggleSettings');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleSettingsPanel();
+      });
+    }
+
+    // Toggle Settings Panel on clicking anywhere on header bar
+    const settingsTop = $('.settings-top');
+    if (settingsTop) {
+      settingsTop.addEventListener('click', (e) => {
+        if (e.target.closest('#btnRefreshAnalysis')) return;
+        toggleSettingsPanel();
+      });
+    }
 
     $$('#settingsPanel input, #settingsPanel select').forEach(el => el.addEventListener('input', () => {
       markSettingsDirty();
