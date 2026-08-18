@@ -1299,8 +1299,9 @@
       [{ id: 'campaignDrop', handler: onCampaign }, { id: 'productDrop', handler: onProduct }].forEach(({ id, handler }) => {
         const d = $('#' + id);
         if (!d) return;
-        ['dragenter', 'dragover'].forEach(ev => { e.preventDefault(); d.classList.add('drag'); });
-        ['dragleave'].forEach(ev => { e.preventDefault(); d.classList.remove('drag'); });
+        d.addEventListener('dragenter', e => { e.preventDefault(); d.classList.add('drag'); });
+        d.addEventListener('dragover', e => { e.preventDefault(); d.classList.add('drag'); });
+        d.addEventListener('dragleave', e => { e.preventDefault(); d.classList.remove('drag'); });
         d.addEventListener('drop', e => {
           e.preventDefault(); d.classList.remove('drag');
           if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
